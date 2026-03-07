@@ -1,33 +1,283 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>Tech Blue AI Music Studio</title>
-<style>
-body{
-background:#071029;
-color:white;
-font-family:Arial;
-text-align:center;
-padding-top:100px;
-}
-button{
-padding:15px;
-background:#1f8bff;
-color:white;
-border:none;
-border-radius:10px;
-font-size:18px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tech Blue AI Music Studio</title>
+  <style>
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:linear-gradient(180deg,#030816,#071029);
+      color:white;
+      min-height:100vh;
+    }
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+      padding:24px;
+    }
+    .card{
+      background:#0b1633;
+      border:1px solid rgba(105,170,255,.18);
+      border-radius:18px;
+      padding:20px;
+      box-shadow:0 12px 40px rgba(0,0,0,.35);
+    }
+    h1{margin-top:0}
+    p{color:#9bb7e8}
+    label{
+      display:block;
+      margin:14px 0 8px;
+      color:#9bb7e8;
+      font-size:14px;
+    }
+    input,select,textarea{
+      width:100%;
+      box-sizing:border-box;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      background:#09142d;
+      color:white;
+      outline:none;
+    }
+    textarea{
+      min-height:220px;
+      resize:vertical;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:16px;
+    }
+    button{
+      padding:12px 16px;
+      border:none;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .primary{
+      background:linear-gradient(135deg,#1f8bff,#4ac3ff);
+      color:white;
+    }
+    .secondary{
+      background:#1b315f;
+      color:white;
+    }
+    .status{
+      margin-top:16px;
+      padding:12px;
+      border-radius:12px;
+      background:#09142d;
+      color:#cfe5ff;
+      border:1px solid rgba(255,255,255,.06);
+    }
+    audio{
+      width:100%;
+      margin-top:16px;
+    }
+    @media (max-width:700px){
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="card">
+      <h1>🎵 Tech Blue AI Music Studio</h1>
+      <p>Genera música con IA desde letra + estilo.</p>
 
-<h1>🎵 Tech Blue AI Music Studio</h1>
+      <div class="grid">
+        <div>
+          <label for="songTitle">Título</label>
+          <input id="songTitle" type="text" placeholder="Ej: Noche Azul">
+        </div>
+        <div>
+          <label for="artistName">Artista</label>
+          <input id="artistName" type="text" placeholder="Ej: Julian Sanchez">
+        </div>
+        <div>
+          <label for="genre">Género</label>
+          <select id="genre">
+            <option>Pop</option>
+            <option>Latin</option>
+            <option>Rock</option>
+            <option>Electronic</option>
+            <option>Hip Hop</option>
+            <option>Salsa</option>
+            <option>Reggaeton</option>
+            <option>Balada</option>
+          </select>
+        </div>
+        <div>
+          <label for="mood">Mood</label>
+          <select id="mood">
+            <option>Inspirador</option>
+            <option>Épico</option>
+            <option>Romántico</option>
+            <option>Oscuro</option>
+            <option>Melancólico</option>
+            <option>Alegre</option>
+          </select>
+        </div>
+        <div>
+          <label for="voice">Tipo de voz</label>
+          <select id="voice">
+            <option>Masculina</option>
+            <option>Femenina</option>
+            <option>Mixta</option>
+            <option>Rap</option>
+            <option>Suave</option>
+            <option>Potente</option>
+          </select>
+        </div>
+        <div>
+          <label for="language">Idioma</label>
+          <select id="language">
+            <option>Español</option>
+            <option>English</option>
+            <option>Spanglish</option>
+            <option>Italiano</option>
+          </select>
+        </div>
+        <div>
+          <label for="duration">Duración (segundos)</label>
+          <input id="duration" type="number" value="30" min="3" max="120">
+        </div>
+        <div>
+          <label for="tempo">Tempo / BPM</label>
+          <input id="tempo" type="number" value="96" min="60" max="180">
+        </div>
+      </div>
 
-<p>Proyecto funcionando en Vercel 🚀</p>
+      <label for="lyrics">Letra</label>
+      <textarea id="lyrics" placeholder="Escribe aquí tu letra..."></textarea>
 
-<button>Generate Song</button>
+      <div class="row">
+        <label style="display:flex;align-items:center;gap:8px;margin:0;">
+          <input id="instrumentalOnly" type="checkbox" style="width:auto;">
+          Instrumental only
+        </label>
+      </div>
 
+      <div class="row">
+        <button class="primary" id="btnGenerate">Generate Song</button>
+        <button class="secondary" id="btnDemo">Demo Fill</button>
+      </div>
+
+      <div class="status" id="statusText">Listo para generar.</div>
+
+      <audio id="player" controls></audio>
+    </div>
+  </div>
+
+  <script>
+    const el = {
+      songTitle: document.getElementById("songTitle"),
+      artistName: document.getElementById("artistName"),
+      genre: document.getElementById("genre"),
+      mood: document.getElementById("mood"),
+      voice: document.getElementById("voice"),
+      language: document.getElementById("language"),
+      duration: document.getElementById("duration"),
+      tempo: document.getElementById("tempo"),
+      lyrics: document.getElementById("lyrics"),
+      instrumentalOnly: document.getElementById("instrumentalOnly"),
+      btnGenerate: document.getElementById("btnGenerate"),
+      btnDemo: document.getElementById("btnDemo"),
+      statusText: document.getElementById("statusText"),
+      player: document.getElementById("player")
+    };
+
+    function setStatus(msg){
+      el.statusText.textContent = msg;
+    }
+
+    function getProject(){
+      return {
+        title: el.songTitle.value.trim() || "Untitled Project",
+        artist: el.artistName.value.trim() || "Unknown Artist",
+        genre: el.genre.value,
+        mood: el.mood.value,
+        voice: el.voice.value,
+        language: el.language.value,
+        duration: Number(el.duration.value || 30),
+        tempo: Number(el.tempo.value || 96),
+        lyrics: el.lyrics.value.trim(),
+        instrumentalOnly: el.instrumentalOnly.checked
+      };
+    }
+
+    async function generateSongWithAPI(project){
+      setStatus("Enviando solicitud a ElevenLabs...");
+
+      const response = await fetch("/api/generate-music", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(project)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data?.details || data?.error || "Generation failed");
+      }
+
+      const audioSrc = `data:${data.mimeType};base64,${data.audioBase64}`;
+      el.player.src = audioSrc;
+      setStatus("Canción generada correctamente.");
+    }
+
+    el.btnGenerate.addEventListener("click", async () => {
+      const project = getProject();
+
+      if (!project.lyrics && !project.instrumentalOnly) {
+        alert("Escribe la letra o activa Instrumental only.");
+        return;
+      }
+
+      try {
+        await generateSongWithAPI(project);
+      } catch (err) {
+        console.error(err);
+        setStatus("Error al generar.");
+        alert("No se pudo generar la canción: " + err.message);
+      }
+    });
+
+    el.btnDemo.addEventListener("click", () => {
+      el.songTitle.value = "Noche Azul";
+      el.artistName.value = "Julian Sanchez";
+      el.genre.value = "Latin";
+      el.mood.value = "Inspirador";
+      el.voice.value = "Masculina";
+      el.language.value = "Español";
+      el.duration.value = 30;
+      el.tempo.value = 98;
+      el.instrumentalOnly.checked = false;
+      el.lyrics.value =
+`Verso 1
+Luces de ciudad sobre el cielo azul
+Sueños encendidos bajo el mismo sur
+
+Coro
+Hoy voy a brillar
+Sin mirar atrás
+Con fuego en el alma
+Y ritmo en la mar`;
+      setStatus("Demo cargado.");
+    });
+  </script>
 </body>
 </html>
